@@ -18,8 +18,8 @@
  ******************************************************************************/
  
  
-#ifndef __CPPTOOLS_STRING_STRING_H
-#define	__CPPTOOLS_STRING_STRING_H
+#ifndef __CPPUTILS_STRING_H__
+#define	__CPPUTILS_STRING_H__
 
 
 #include <string>
@@ -184,6 +184,6 @@ std::string toupper(const std::string & src_);
 
 } /* namespace cpputils */
 
-#endif /* __CPPTOOLS_STRING_STRING_H */
+#endif /* __CPPUTILS_STRING_H__ */
  
  
