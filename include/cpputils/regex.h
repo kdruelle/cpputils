@@ -21,6 +21,7 @@
 #define	__CPPUTILS_REGEX_H__
 
 #include <string>
+#include <vector>
 
 namespace cpputils{
 
@@ -30,6 +31,12 @@ struct regex_object_data;
  * A regex Object
  */
 class regex{
+
+
+public:
+    
+    // typedefs
+    typedef void (*match_callback)(std::string & match_);
     
     // Constructors
     regex();
@@ -45,6 +52,10 @@ class regex{
     
     // functions
     bool match(const std::string & subject_) const;
+    bool extract(const std::string & subject_, std::vector<std::string> & matched_) const;
+    
+    
+    std::string replace(const std::string & subject_, const std::string & replacement_) const;
     
 private:
     struct regex_object_data * _data;

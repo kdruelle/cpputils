@@ -18,6 +18,8 @@
  ******************************************************************************/
 
 #include <cpputils/regex.h>
+#include <cpputils/string.h>
+
 #include <regex.h>
 
 struct cpputils::regex_object_data{
@@ -78,5 +80,71 @@ bool cpputils::regex::match(const std::string& subject_) const{
     return ret;
 }
 
+
+bool cpputils::regex::extract(const std::string& subject_, std::vector<std::string>& matched_) const{
+    regex_t reg;
+    bool ret = false;
+    std::string part;
+    regmatch_t match[2] = {0};
+    std::string s = subject_;
+    
+    regcomp(&reg, _data->pattern.c_str(), REG_EXTENDED);
+    
+    while (regexec(&reg, s.c_str(), 2, match, 0) == 0) {
+        if (match[1].rm_so != -1) {
+            ret = true;
+            part.assign(s.c_str(), match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+            s.erase(match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+            matched_.push_back(part);
+        }
+
+    }
+
+    regfree(&reg);
+    return ret;
+}
+
+std::string cpputils::regex::replace(const std::string& subject_, const std::string& replacement_) const{
+    regex_t reg;
+    
+    // compute nbmatch
+    unsigned int nbmatch = 1;
+    for (std::string::const_iterator it = _data->pattern.begin(); it != _data->pattern.end(); ++it) {
+        if (*it == '(') nbmatch++;
+    }
+
+    regmatch_t * match = new regmatch_t[nbmatch + 1];
+    regcomp(&reg, _data->pattern.c_str(), REG_EXTENDED);
+
+    std::string newstring;
+    std::string subject = subject_;
+    std::string computedreplacement;
+    size_t joker_pos;
+    while (regexec(&reg, subject.c_str(), nbmatch, match, 0) == 0) {
+        
+        // compute the remplacement string
+        computedreplacement = replacement_;
+        for (unsigned int i = 0; i < nbmatch; i++) {
+            std::string joker = "$";
+            joker += cpputils::tostring(i);
+            while (match[i].rm_so != -1 && (joker_pos = computedreplacement.find(joker)) != std::string::npos) {
+                std::string jreplace;
+                jreplace.assign(subject.c_str(), match[i].rm_so, match[i].rm_eo - match[i].rm_so);
+                computedreplacement.replace(joker_pos, 2, jreplace);
+            }
+        }
+        
+        // Add firsts no matching characters + the computed replacement string
+        // To the new string.
+        newstring += subject.substr(0, match[0].rm_so) + computedreplacement;
+        subject.erase(0, match[0].rm_eo); // Remove the begin for the next iterration.
+    }
+    
+    // characters that doesnt match
+    newstring += subject;
+    
+    regfree(&reg);
+    return newstring;
+}
 
 
