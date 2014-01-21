@@ -9,6 +9,7 @@ INCLUDE (CheckLibraryExists)
 INCLUDE (CheckTypeSize) 
 
 INCLUDE (cmake/distclean.cmake OPTIONAL)
+INCLUDE (cmake/libcheck.cmake)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -53,4 +54,6 @@ add_executable(
     EXCLUDE_FROM_ALL
     ${testcpputils_src}
 )
+
+TARGET_LINK_LIBRARIES(test pthread)
 
